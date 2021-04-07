@@ -3,7 +3,7 @@ from django.urls import reverse, resolve
 from boards import views
 from boards.models import Board, Topic, Post
 from django.contrib.auth.models import User
-from .forms import NewTopicForm
+from ..forms import NewTopicForm
 # Create your tests here.
 
 class HomeTest(TestCase):
