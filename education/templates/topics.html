@@ -3,11 +3,11 @@
 <li class="breadcrumb-item"><a href="{% url 'home' %}">Boards</a></li>
 <li class="breadcrumb-item active">{{ board.name }}</li>
 {% endblock %}{% block content %}
-  <div class="mb-4">
-    <a href="{% url 'new_topic' board.pk %}" class="btn btn-primary">New topic</a>
-  </div>
+<div class="mb-4">
+  <a href="{% url 'new_topic' board.pk %}" class="btn btn-primary">New topic</a>
+</div>
 
-  <table class="table">
+<table class="table">
   <thead class="thead-inverse">
     <tr>
       <th>Topic</th>
@@ -18,22 +18,40 @@
     </tr>
   </thead>
   <tbody>
-    {% for topic in topics %}
-    <tr>
-      <td>
-        <a href="{% url 'topic_posts' board.pk topic.pk %}"
-          >{{ topic.subject }}</a
-        >
-      </td>
-      <td>{{ topic.starter.username }}</td>
-      <td>{{ topic.posts.all.count }}</td>
-      <td>{{ topic.views }}</td>
-      <!-- here -->
-      <td>{{ topic.last_updated }}</td>
-    </tr>
-    {% endfor %}
+    <div class="infinite-container">
+      {% for topic in topics %}
+      <div class="infinite-item">
+        <tr>
+          <td>
+            <a href="{% url 'topic_posts' board.pk topic.pk %}"
+              >{{ topic.subject }}</a
+            >
+          </td>
+          <td>{{ topic.starter.username }}</td>
+          <td>{{ topic.posts.all.count }}</td>
+          <td>{{ topic.views }}</td>
+          <td>{{ topic.last_updated }}</td>
+        </tr>
+      </div>
+      {% endfor %}
+    </div>
   </tbody>
 </table>
-  {% include 'pagination.html' %}
 
+{% if topics.has_next %}
+<a class="infinite-more-link" href="?page={{ topics.next_page_number }}"
+  >More</a
+>
+{% endif %}
+<script>
+  var infinite = new Waypoint.Infinite({
+    element: $(".infinite-container")[0],
+    onBeforePageLoad: function () {
+      $(".loading").show();
+    },
+    onAfterPageLoad: function ($items) {
+      $(".loading").hide();
+    },
+  });
+</script>
 {% endblock %}

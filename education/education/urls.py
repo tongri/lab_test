@@ -4,6 +4,8 @@ from django.urls import path
 from accounts import views as account_views
 from django.contrib.auth import views as auth_views
 from boards import views
+from django.conf.urls.static import static
+from django.conf import settings 
 
 urlpatterns = [
     url(r'^$', views.BoardListView.as_view(), name="home"),
@@ -24,4 +26,4 @@ urlpatterns = [
     path('settings/password/done/', auth_views.PasswordChangeDoneView.as_view(template_name="password_change_done.html"), name="password_change_done"),
     path('settings/account/', account_views.UserUpdateView.as_view(), name='my_account'),
     path('admin/', admin.site.urls),
-]
+] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

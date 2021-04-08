@@ -23,7 +23,7 @@ class TopicListView(ListView):
     model = Topic
     context_object_name = 'topics'
     template_name = 'topics.html'
-    paginate_by = 5
+    paginate_by = 1
 
     def get_context_data(self, **kwargs):
         kwargs['board'] = self.board
