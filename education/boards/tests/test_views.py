@@ -14,7 +14,7 @@ class HomeTest(TestCase):
 
     def test_home_url_resolves_home_view(self):
         view = resolve('/')
-        self.assertEquals(view.func, views.home)
+        self.assertEquals(view.func, views.BoardListView)
 
 
 class BoardTopicsTests(TestCase):
