@@ -20,6 +20,11 @@ from django.http import JsonResponse
 from django.template.loader import render_to_string
 from pdb import set_trace
 from django.core.paginator import Paginator
+from django.contrib import messages
+
+from django.db.models.signals import post_save
+from django.dispatch import receiver
+from education.settings import AUTH_USER_MODEL
 # Create your views here.
 
 
@@ -114,53 +119,72 @@ class BoardListView(ListView):
     template_name = "home.html"
     paginate_by = 2
 
+    def get_context_data(self, **kwargs):
+        page = self.request.GET.get('page', 1)
+        return super().get_context_data(page=page, **kwargs)
 
-def save_board_form(request, form, template_name):
+
+def save_board_form(request, form, template_name, page, message):
     data = dict()
     if request.method == 'POST':
         if form.is_valid():
             form.save()
             data['form_is_valid'] = True
-            boards = Board.objects.all()
+            messages.success(request, message)
+            p = Paginator(Board.objects.all(), BoardListView.paginate_by)
+        
+            boards = p.page(page)
+            boards = boards.object_list
+            infos = messages.get_messages(request)
             data['html_book_list'] = render_to_string('partial_board_list.html', {
                 'boards': boards,
+                'page': page,
+                'request': request,
+                'messages': infos
             })
         else:
             data['form_is_valid'] = False
-    context = {'form': form}
+    context = {'form': form, 'request': request, 'page': page}
     data['html_form'] = render_to_string(template_name, context, request=request)
     return JsonResponse(data)
 
 
-def board_create(request):
+def board_create(request, page=1):
     if request.method == 'POST':
         form = BoardForm(request.POST)
     else:
         form = BoardForm()
-    return save_board_form(request, form, 'partial_board_create.html')
+    return save_board_form(request, form, 'partial_board_create.html', page,
+        message='Board was created successfully')
 
-def board_update(request, pk):
+def board_update(request, pk, page=1):
     board = get_object_or_404(Board, pk=pk)
     
     if request.method == "POST":
         form = BoardForm(request.POST, instance = board)
     else:
         form = BoardForm(instance=board)
-    return save_board_form(request, form, 'partial_board_update.html')
+    return save_board_form(request, form, 'partial_board_update.html', page,
+        message='Board was updated successfully')
 
-def board_delete(request, pk, page):
+def board_delete(request, pk, page=1):
     board = get_object_or_404(Board, pk=pk)
     page = int(page)
     data = dict()
     if request.method == 'POST':
-        board.delete()
         data['form_is_valid'] = True
+        
         p = Paginator(Board.objects.all(), BoardListView.paginate_by)
-        boards = p.page(page).object_list
-        #messages.success(request, 'Board was deleted successfully!')
+        
+        boards = p.page(page)
+        boards = boards.object_list
+        
+        board.delete()
+        messages.success(request, 'Board was deleted successfully!')
         data['html_book_list'] = render_to_string('partial_board_list.html', {
             'boards': boards,
-            'user': request.user
+            'request': request,
+            'page': page
         })
     else:
         context = {'board': board, 'page': page}

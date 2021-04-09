@@ -1,3 +1,19 @@
+{% if messages %}
+  <ul class="messages">
+    {% for message in messages %}
+      <li class="{{ message.tags }}">{{ message }}</li>
+    {% endfor %}
+  </ul>
+{% endif %}
+<table class="table" id="board-table">
+    <tbody>
+      <tr>
+        <th>Board</th>
+        <th>Posts</th>
+        <th>Topics</th>
+        <th>Last Post</th>
+      </tr>
+    
 {% for board in boards %}
         <tr>
           <td>
@@ -21,19 +37,21 @@
             {% endif %}
             {% endwith %}
           </td>
-          {% if user.is_blogger or perm %}
+          {% if request.user.is_blogger %}
           <td>
             <button type="button"
               class="btn btn-warning btn-sm js-update-board"
-              data-url="{% url "board_update" board.id %}">
+              data-url="{% url "board_update" board.id page %}">
               <span class="glyphicon glyphicon-pencil"></span> Edit
             </button>
             <button type="button"
                 class="btn btn-danger btn-sm js-delete-board"
-                data-url="{% url 'board_delete' board.id page_obj.number %}">
+                data-url="{% url 'board_delete' board.id page %}">
                 <span class="glyphicon glyphicon-trash"></span> Delete
             </button>
           </td>
           {% endif %}
         </tr>
       {% endfor %}
+  </tbody>
+</table>

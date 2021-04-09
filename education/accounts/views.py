@@ -46,6 +46,7 @@ class UserUpdateView(UpdateView):
     fields = ('first_name', 'last_name', 'email', )
     template_name = 'my_account.html'
     success_url = reverse_lazy('my_account')
+    success_message = 'Account successfully updated'
 
     def get_object(self):
         return self.request.user
