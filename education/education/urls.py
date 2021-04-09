@@ -9,7 +9,7 @@ from django.conf import settings
 
 urlpatterns = [
     url(r'^$', views.BoardListView.as_view(), name="home"),
-    url(r'^signup/$', account_views.signup, name="signup"),
+    path('signup/blogger/', account_views.BloggerCreateView.as_view(), name="signup"),
     url(r'^logout/$', auth_views.LogoutView.as_view(), name='logout'),
     url(r'^login/$', auth_views.LoginView.as_view(template_name="login.html"), name="login"),
     url(r'^boards/(?P<pk>\d+)/$', views.TopicListView.as_view(), name="board_topics"),

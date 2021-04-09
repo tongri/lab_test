@@ -2,6 +2,10 @@ from django import forms
 from .models import Topic, Post
 
 
+class MyDateInput(forms.DateInput):
+    input_type = 'date'
+
+
 class NewTopicForm(forms.ModelForm):
     message = forms.CharField(
         widget=forms.Textarea(

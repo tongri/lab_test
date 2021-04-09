@@ -1,9 +1,34 @@
+from django.contrib.auth.base_user import AbstractBaseUser
 from django.db import models
-from django.contrib.auth.models import User
+from django.contrib.auth.models import AbstractUser
 from django.utils.text import Truncator
 from django.utils.html import mark_safe
 from markdown import markdown
+from django.utils import timezone
+
+from multiselectfield import MultiSelectField
 # Create your models here.
+
+
+class Categories(models.Model):
+    name = models.CharField(max_length=50)
+
+
+class User(AbstractUser):
+    is_reader = models.BooleanField(default=False)
+    is_blogger = models.BooleanField(default=False)
+    categories = models.ManyToManyField(Categories, blank=True, null=True)
+
+
+class Reader(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True)
+    is_eighteen = models.BooleanField(default=False)
+
+
+class Blogger(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    birthday = models.DateField(default=timezone.now().date())
+    country = models.CharField(max_length=50, default='Ukraine')
 
 
 class Board(models.Model):
@@ -44,4 +69,4 @@ class Post(models.Model):
         return truncated_message.chars(30)
 
     def get_message_as_markdown(self):
-        return mark_safe(markdown(self.message, safe_mode='escape'))
+        return mark_safe(markdown(self.message))

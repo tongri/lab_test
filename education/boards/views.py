@@ -1,5 +1,8 @@
+from django.db.models.signals import post_save
+from django.dispatch import receiver
 from django.shortcuts import render, get_object_or_404, redirect
 from django.http import HttpResponse, HttpResponseRedirect, Http404
+
 from .models import Board, Topic, Post
 from django.urls import reverse, reverse_lazy
 from django.contrib.auth.models import User
@@ -13,6 +16,8 @@ from django.utils import timezone
 from django.views.generic import UpdateView, ListView
 from django.contrib.auth.mixins import LoginRequiredMixin
 # Create your views here.
+
+
 
 
 def home(request):
