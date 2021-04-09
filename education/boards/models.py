@@ -6,7 +6,6 @@ from django.utils.html import mark_safe
 from markdown import markdown
 from django.utils import timezone
 
-from multiselectfield import MultiSelectField
 # Create your models here.
 
 

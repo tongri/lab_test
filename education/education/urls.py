@@ -9,9 +9,14 @@ from django.conf import settings
 
 urlpatterns = [
     url(r'^$', views.BoardListView.as_view(), name="home"),
-    path('signup/blogger/', account_views.BloggerCreateView.as_view(), name="signup"),
+    path('signup/', account_views.signup, name='signup'),
+    path('signup/blogger/', account_views.BloggerCreateView.as_view(), name="signup_blogger"),
+    path('signup/reader/', account_views.ReaderCreateView.as_view(), name="signup_reader"),
     url(r'^logout/$', auth_views.LogoutView.as_view(), name='logout'),
     url(r'^login/$', auth_views.LoginView.as_view(template_name="login.html"), name="login"),
+    path('board/create/', views.board_create, name='board_create'),
+    path('board/<pk>/update/', views.board_update, name="board_update"),
+    path('board/<pk>/delete/<page>/', views.board_delete, name="board_delete"),
     url(r'^boards/(?P<pk>\d+)/$', views.TopicListView.as_view(), name="board_topics"),
     url(r'^boards/(?P<pk>\d+)/new/$', views.new_topic, name="new_topic"),
     path("boards/<pk>/topics/<topic_pk>/", views.PostListView.as_view(), name="topic_posts"),

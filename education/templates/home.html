@@ -1,11 +1,34 @@
 {% extends 'base.html' %}
 
+{% load static %}
+
 {% block breadcrumb %}
   <li class="breadcrumb-item active">Boards</li>
 {% endblock %}
 
+{% block javascript %}
+<script src='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js'></script>
+  <script src='{% static "js/boardCreate.js" %}'>
+  </script>
+{% endblock %}
+
 {% block content %}
-  <table class="table">
+{% if messages %}
+  <ul class="messages">
+    {% for message in messages %}
+      <li class="{{ message.tags }}">{{ message }}</li>
+    {% endfor %}
+  </ul>
+{% endif %}
+{% if user.is_blogger %}
+<p>
+    <button type="button" class="btn btn-primary js-create-board" data-url="{% url 'board_create' %}">
+      <span class="glyphicon glyphicon-plus"></span>
+      New Board
+    </button>
+  </p>
+{% endif %}
+  <table class="table" id="board-table">
     <thead class="thead-inverse">
       <tr>
         <th>Board</th>
@@ -15,29 +38,34 @@
       </tr>
     </thead>
     <tbody>
-      {% for board in boards %}
-        <tr>
-          <td>
-            <a href="{% url 'board_topics' board.pk %}">{{ board.name }}</a>
-            <small class="text-muted d-block">{{ board.description }}</small>
-          </td>
-          <td class="align-middle">
-            {{ board.get_posts_count }}
-          </td>
-          <td class="align-middle">
-            {{ board.topics.count }}
-          </td>
-          <td class="align-middle">
-            {% with post=board.get_last_post %}
-              <small>
-                <a href="{% url 'topic_posts' board.pk post.topic.pk %}">
-                  By {{ post.created_by.username }} at {{ post.created_at }}
-                </a>
-              </small>
-            {% endwith %}
-          </td>
-        </tr>
-      {% endfor %}
+      {% include 'partial_board_list.html' %}
     </tbody>
   </table>
+  <nav aria-label="...">
+  <ul class="pagination">
+      <li class="page-item {% if not page_obj.has_previous %}disabled{% endif %}">
+          <a class="page-link" href="{% if page_obj.has_previous %}?page={{page_obj.previous_page_number}}{% endif %}" aria-disabled="true">Previous</a>
+      </li>
+      {% if page_obj.number != 1 %}
+      <li class="page-item"><a class="page-link" href="?page=1">1</a></li>{% endif %}
+      <li class="page-item active" aria-current="page">
+          <a class="page-link" href="?page={{ page_obj.number}}">{{ page_obj.number}}</a>
+      </li>
+      {% if page_obj.paginator.num_pages != 1 and page_obj.has_next %}
+      <li class="page-item">
+        <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}">{{ page_obj.paginator.num_pages }}</a>
+      </li>
+      {% endif %}
+       {% if page_obj.has_next %}
+      <li class="page-item">
+        <a class="page-link" href="?page={{ page_obj.next_page_number }}">Next</a>
+      </li>
+      {% endif %}
+    </ul>
+  </nav>
+  <div class="modal fade" id="modal-board">
+    <div class="modal-dialog">
+      <div class="modal-content">
+      </div>
+    </div>
 {% endblock %}

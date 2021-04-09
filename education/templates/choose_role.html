@@ -1,0 +1,22 @@
+{% extends 'base.html' %} {% block content %}
+
+<div class="row">
+  <div class="col-sm-6">
+    <div class="card">
+      <div class="card-body">
+        <h5 class="card-title">Sign up as Reader</h5>
+        <a href="{% url 'signup_reader' %}" class="btn btn-primary">Sign Up</a>
+      </div>
+    </div>
+  </div>
+  <div class="col-sm-6">
+    <div class="card">
+      <div class="card-body">
+        <h5 class="card-title">Sign up as Blogger</h5>
+        <a href="{% url 'signup_blogger' %}" class="btn btn-primary">Sign Up</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

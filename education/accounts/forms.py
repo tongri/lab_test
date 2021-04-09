@@ -1,8 +1,7 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
-from django.contrib.auth.models import User
 
-from boards.models import Category, Blogger
+from boards.models import Category, Blogger, User, Reader
 
 
 class MyDateInput(forms.DateInput):
@@ -23,7 +22,7 @@ class SignUpForm(UserCreationForm):
 
 class BloggerSignupForm(SignUpForm):
     country = forms.CharField(max_length=50)
-    birthday = MyDateInput()
+    birthday = forms.DateField(widget=MyDateInput)
 
     class Meta(SignUpForm.Meta):
         pass
@@ -34,4 +33,18 @@ class BloggerSignupForm(SignUpForm):
         user.save()
         Blogger.objects.create(user=user, birthday=self.cleaned_data.get('birthday'),
                                country=self.cleaned_data.get('country'))
+        return user
+
+
+class ReaderSignupForm(SignUpForm):
+    is_eighteen = forms.BooleanField(required=True)
+
+    class Meta(SignUpForm.Meta):
+        pass
+
+    def save(self, commit=True):
+        user = super().save(commit=False)
+        user.is_reader = True
+        user.save()
+        Reader.objects.create(user=user, is_eighteen=self.cleaned_data.get('is_eighteen'))
         return user

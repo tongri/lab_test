@@ -1,9 +1,15 @@
 from django import forms
-from .models import Topic, Post
+from .models import Topic, Post, Board
 
 
 class MyDateInput(forms.DateInput):
     input_type = 'date'
+
+
+class BoardForm(forms.ModelForm):
+    class Meta:
+        model = Board
+        fields = '__all__'
 
 
 class NewTopicForm(forms.ModelForm):
