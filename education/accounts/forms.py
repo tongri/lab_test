@@ -2,7 +2,7 @@ from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 
-from boards.models import Categories, Blogger
+from boards.models import Category, Blogger
 
 
 class MyDateInput(forms.DateInput):
@@ -12,7 +12,7 @@ class MyDateInput(forms.DateInput):
 class SignUpForm(UserCreationForm):
     email = forms.EmailField(max_length=254, required=True)
     categories = forms.ModelMultipleChoiceField(
-        queryset=Categories.objects.all(),
+        queryset=Category.objects.all(),
         widget=forms.CheckboxSelectMultiple,
     )
 

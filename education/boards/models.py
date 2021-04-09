@@ -10,14 +10,14 @@ from multiselectfield import MultiSelectField
 # Create your models here.
 
 
-class Categories(models.Model):
+class Category(models.Model):
     name = models.CharField(max_length=50)
 
 
 class User(AbstractUser):
     is_reader = models.BooleanField(default=False)
     is_blogger = models.BooleanField(default=False)
-    categories = models.ManyToManyField(Categories, blank=True, null=True)
+    categories = models.ManyToManyField(Category, blank=True, null=True)
 
 
 class Reader(models.Model):
