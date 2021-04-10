@@ -1,16 +1,10 @@
-from django.db.models.signals import post_save
-from django.dispatch import receiver
 from django.shortcuts import render, get_object_or_404, redirect
-from django.http import HttpResponse, HttpResponseRedirect, Http404
 
 from .models import Board, Topic, Post
-from django.urls import reverse, reverse_lazy
-from django.contrib.auth.models import User
 from .forms import NewTopicForm, PostForm, BoardForm
 from django.contrib.auth.decorators import login_required
 
 from django.db.models import Count
-from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
 from django.utils import timezone
 from django.views.generic import UpdateView, ListView
@@ -22,9 +16,7 @@ from pdb import set_trace
 from django.core.paginator import Paginator
 from django.contrib import messages
 
-from django.db.models.signals import post_save
-from django.dispatch import receiver
-from education.settings import AUTH_USER_MODEL
+
 # Create your views here.
 
 
@@ -43,6 +35,7 @@ class TopicListView(ListView):
         queryset = self.board.topics.order_by('-last_updated').annotate(replies=Count('posts') - 1)
         return queryset
 
+
 @login_required
 def new_topic(request, pk):
     board = get_object_or_404(Board, pk=pk)
@@ -55,7 +48,7 @@ def new_topic(request, pk):
             topic.starter = request.user
             topic.save()
             post = Post.objects.create(message=form.cleaned_data.get('message'),
-                topic = topic, created_by=request.user)
+                                       topic=topic, created_by=request.user)
             return redirect('topic_posts', pk=pk, topic_pk=topic.pk)
 
     else:
@@ -100,7 +93,7 @@ def reply_topic(request, pk, topic_pk):
 
 class PostUpdateView(LoginRequiredMixin, UpdateView):
     model = Post
-    fields = ('message', )
+    fields = ('message',)
     template_name = "edit_post.html"
     pk_url_kwarg = "post_pk"
     context_object_name = 'post'
@@ -130,17 +123,14 @@ def save_board_form(request, form, template_name, page, message):
         if form.is_valid():
             form.save()
             data['form_is_valid'] = True
-            messages.success(request, message)
             p = Paginator(Board.objects.all(), BoardListView.paginate_by)
-        
             boards = p.page(page)
             boards = boards.object_list
-            infos = messages.get_messages(request)
             data['html_book_list'] = render_to_string('partial_board_list.html', {
                 'boards': boards,
                 'page': page,
                 'request': request,
-                'messages': infos
+                'messages': (message, )
             })
         else:
             data['form_is_valid'] = False
@@ -155,17 +145,19 @@ def board_create(request, page=1):
     else:
         form = BoardForm()
     return save_board_form(request, form, 'partial_board_create.html', page,
-        message='Board was created successfully')
+                           message='Board was created successfully')
+
 
 def board_update(request, pk, page=1):
     board = get_object_or_404(Board, pk=pk)
-    
+
     if request.method == "POST":
-        form = BoardForm(request.POST, instance = board)
+        form = BoardForm(request.POST, instance=board)
     else:
         form = BoardForm(instance=board)
     return save_board_form(request, form, 'partial_board_update.html', page,
-        message='Board was updated successfully')
+                           message='Board was updated successfully')
+
 
 def board_delete(request, pk, page=1):
     board = get_object_or_404(Board, pk=pk)
@@ -173,23 +165,24 @@ def board_delete(request, pk, page=1):
     data = dict()
     if request.method == 'POST':
         data['form_is_valid'] = True
-        
+
         p = Paginator(Board.objects.all(), BoardListView.paginate_by)
-        
+
         boards = p.page(page)
         boards = boards.object_list
-        
+
         board.delete()
-        messages.success(request, 'Board was deleted successfully!')
+        message = 'Board was deleted successfully!'
         data['html_book_list'] = render_to_string('partial_board_list.html', {
             'boards': boards,
             'request': request,
-            'page': page
+            'page': page,
+            'messages': (message, )
         })
     else:
         context = {'board': board, 'page': page}
         data['html_form'] = render_to_string('partial_board_delete.html',
-            context,
-            request=request,
-        )
+                                             context,
+                                             request=request,
+                                             )
     return JsonResponse(data)
