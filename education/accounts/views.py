@@ -36,12 +36,16 @@ class ReaderCreateView(AbstractCertainUserCreateView):
 
 class UserUpdateView(LoginRequiredMixin, UpdateView):
     model = User
-    fields = ('first_name', 'last_name', 'email', )
+    #fields = ('first_name', 'last_name', 'email', )
     template_name = 'my_account.html'
     success_url = reverse_lazy('my_account')
 
     def get_object(self, queryset=None):
         return self.request.user
+
+    def get_form(self, form_class=None):
+        form_class = BloggerSignupForm if self.request.user.is_blogger else ReaderSignupForm
+        return super().get_form(form_class=form_class)
 
     def form_valid(self, form):
         messages.success(self.request, 'Account updated successfully')

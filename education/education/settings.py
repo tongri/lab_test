@@ -39,6 +39,12 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+
+    'django.contrib.sites',
+    'django.contrib.flatpages',
+    'social_django',
+    'social_core',
+
     'boards',
     'widget_tweaks',
     'accounts',
@@ -52,6 +58,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'social_django.middleware.SocialAuthExceptionMiddleware',
 ]
 
 ROOT_URLCONF = 'education.urls'
@@ -60,7 +67,7 @@ TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
         'DIRS': [
-            os.path.join(BASE_DIR, 'templates')
+            os.path.join(BASE_DIR, 'templates'),
         ],
         'APP_DIRS': True,
         'OPTIONS': {
@@ -69,7 +76,10 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
-            ],
+
+                'social_django.context_processors.backends',
+                'social_django.context_processors.login_redirect',
+           ],
         },
     },
 ]
@@ -138,4 +148,20 @@ LOGIN_REDIRECT_URL = "home"
 
 LOGIN_URL = "login"
 
+LOGOUT_URL = "logout"
+
 EMAIL_BACKEND = "django.core.mail.backend.console.EmailBackend"
+
+SITE_ID = 1
+
+
+AUTHENTICATION_BACKENDS = (
+    'social_core.backends.github.GithubOAuth2',
+    'social_core.backends.twitter.TwitterOAuth',
+    'social_core.backends.facebook.FacebookOAuth2',
+
+    'django.contrib.auth.backends.ModelBackend',
+)
+
+SOCIAL_AUTH_GITHUB_KEY = 'c257858185f8cd185c91'
+SOCIAL_AUTH_GITHUB_SECRET = 'c1054aa720099bb405b804a31f649a14360811f2'
