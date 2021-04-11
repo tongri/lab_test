@@ -37,7 +37,7 @@
             {{ user }}
           </a>
           <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="navbarDarkDropdownMenuLink">
-            <li><a class="dropdown-item" href="#">My account</a></li>
+            <li><a class="dropdown-item" href="{% url 'my_account' %}">My account</a></li>
             <li><a class="dropdown-item" href="{% url "password_change" %}">Change password</a></li>
             <li><hr class="dropdown-divider"></li>
             <li><a class="dropdown-item" href="{% url 'logout' %}">Log out</a></li>
