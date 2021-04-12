@@ -23,14 +23,20 @@ class User(AbstractUser):
 
 
 class Reader(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True)
+    user = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True, editable=False)
     is_eighteen = models.BooleanField(default=False)
+
+    def __str__(self):
+        return self.user.username
 
 
 class Blogger(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    user = models.OneToOneField(User, on_delete=models.CASCADE, editable=False)
     birthday = models.DateField(default=timezone.now().date())
     country = models.CharField(max_length=50, default='Ukraine')
+
+    def __str__(self):
+        return self.user.username
 
 
 class Board(models.Model):

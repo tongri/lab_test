@@ -1,6 +1,5 @@
-from django.core.cache import cache
 from django.shortcuts import render, get_object_or_404, redirect
-
+from django.core.cache import cache
 from .models import Board, Topic, Post
 from .forms import NewTopicForm, PostForm, BoardForm
 from django.contrib.auth.decorators import login_required
@@ -115,7 +114,16 @@ class BoardListView(ListView):
 
     def get_context_data(self, **kwargs):
         page = self.request.GET.get('page', 1)
-        return super().get_context_data(page=page, **kwargs)
+        infos = cache.get('notifications')
+        return super().get_context_data(page=page, infos=infos, **kwargs)
+
+def add_to_cache(message):
+    notification = cache.get('notifications')
+    if notification:
+        notification = [message] + notification[:4]
+        cache.set('notifications', notification, 60 * 15)
+    else:
+        cache.set('notifications', [message], 60 * 15)
 
 
 def save_board_form(request, form, template_name, page, message):
@@ -127,11 +135,7 @@ def save_board_form(request, form, template_name, page, message):
             p = Paginator(Board.objects.all(), BoardListView.paginate_by)
             boards = p.page(page)
             boards = boards.object_list
-            if cache.get('notifications'):
-                notifications = cache.get('notifications').append(message)
-                cache.set('notifications', notifications, 100)
-            else:
-                cache.set('notifications', [message], 100)
+            add_to_cache(message.format(form.cleaned_data.get('name')))
 
             data['html_book_list'] = render_to_string('partial_board_list.html', {
                 'boards': boards,
@@ -152,7 +156,7 @@ def board_create(request, page=1):
     else:
         form = BoardForm()
     return save_board_form(request, form, 'partial_board_create.html', page,
-                           message='Board was created successfully')
+                           message='Board "{}" was created successfully')
 
 
 def board_update(request, pk, page=1):
@@ -163,7 +167,7 @@ def board_update(request, pk, page=1):
     else:
         form = BoardForm(instance=board)
     return save_board_form(request, form, 'partial_board_update.html', page,
-                           message='Board was updated successfully')
+                           message='Board "{}" was updated successfully')
 
 
 def board_delete(request, pk, page=1):
@@ -178,8 +182,10 @@ def board_delete(request, pk, page=1):
         boards = p.page(page)
         boards = boards.object_list
 
+        message = 'Board "{}" was deleted successfully!'.format(board.name)
+
+        add_to_cache(message)
         board.delete()
-        message = 'Board was deleted successfully!'
         data['html_book_list'] = render_to_string('partial_board_list.html', {
             'boards': boards,
             'request': request,

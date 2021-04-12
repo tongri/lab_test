@@ -1,5 +1,4 @@
 {% extends 'base.html' %}
-{% load cache %}
 {% load static %}
 
 {% block breadcrumb %}
@@ -31,9 +30,11 @@
 
 
             <ul class="list-group list-group-flush">
-                {% for message in messages %}
-                <li class="list-group-item">{{ message }}</li>
+            {% if user.is_blogger %}
+                {% for info in infos %}
+                <li class="list-group-item">{{ info }}</li>
                 {% endfor %}
+            {% endif %}
             </ul>
 
     </div>
