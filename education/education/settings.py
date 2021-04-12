@@ -53,7 +53,9 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'django.middleware.cache.UpdateCacheMiddleware',
     'django.middleware.common.CommonMiddleware',
+    'django.middleware.cache.FetchFromCacheMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
@@ -157,14 +159,20 @@ SITE_ID = 1
 
 AUTHENTICATION_BACKENDS = (
     'social_core.backends.github.GithubOAuth2',
-    'social_core.backends.twitter.TwitterOAuth',
     'social_core.backends.facebook.FacebookOAuth2',
-
+    'social_core.backends.linkedin.LinkedinOAuth2',
+    'social_core.backends.instagram.InstagramOAuth2',
     'django.contrib.auth.backends.ModelBackend',
 )
+
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.dummy.DummyCache',
+    }
+}
 
 SOCIAL_AUTH_GITHUB_KEY = 'c257858185f8cd185c91'
 SOCIAL_AUTH_GITHUB_SECRET = 'c1054aa720099bb405b804a31f649a14360811f2'
 
 SOCIAL_AUTH_FACEBOOK_KEY = '809458706358128'
-SOCIAL_AUTH_FACEBOOK_SECRET = 'eecb0a91e7176a9a78eac07f32929bcc'
+SOCIAL_AUTH_FACEBOOK_SECRET = 'f5028c31751b672e955819efd5937505'

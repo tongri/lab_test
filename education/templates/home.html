@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-
+{% load cache %}
 {% load static %}
 
 {% block breadcrumb %}
@@ -21,9 +21,23 @@
     </button>
   </p>
 {% endif %}
-  
+    <div class="row">
+  <div class="col-8">
       {% include 'partial_board_list.html' %}
+  </div>
+    <div class="col-4">
+        <div class="card">
 
+
+
+            <ul class="list-group list-group-flush">
+                {% for message in messages %}
+                <li class="list-group-item">{{ message }}</li>
+                {% endfor %}
+            </ul>
+
+    </div>
+    </div>
   <nav aria-label="...">
   <ul class="pagination">
       <li class="page-item {% if not page_obj.has_previous %}disabled{% endif %}">

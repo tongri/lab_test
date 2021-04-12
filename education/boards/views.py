@@ -1,3 +1,4 @@
+from django.core.cache import cache
 from django.shortcuts import render, get_object_or_404, redirect
 
 from .models import Board, Topic, Post
@@ -126,6 +127,12 @@ def save_board_form(request, form, template_name, page, message):
             p = Paginator(Board.objects.all(), BoardListView.paginate_by)
             boards = p.page(page)
             boards = boards.object_list
+            if cache.get('notifications'):
+                notifications = cache.get('notifications').append(message)
+                cache.set('notifications', notifications, 100)
+            else:
+                cache.set('notifications', [message], 100)
+
             data['html_book_list'] = render_to_string('partial_board_list.html', {
                 'boards': boards,
                 'page': page,
