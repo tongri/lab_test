@@ -7,6 +7,8 @@
         <h3 class="card-title">Log in</h3>
         <form method="post" novalidate>
           {% csrf_token %} {% include 'form.html' %}
+            <script src='https://www.google.com/recaptcha/api.js'></script>
+            <div class="g-recaptcha" data-sitekey="6LeD3qYaAAAAAOYDwQIiqaBs12etbmS4-r4QIMvS"></div>
           <button type="submit" class="btn btn-primary btn-block">
             Log in
           </button>
