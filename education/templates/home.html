@@ -21,24 +21,25 @@
   </p>
 {% endif %}
     <div class="row">
-  <div class="col-8">
+  <div class="col">
       {% include 'partial_board_list.html' %}
   </div>
+    {% if user.is_blogger and infos %}
     <div class="col-4">
         <div class="card">
 
 
 
-            <ul class="list-group list-group-flush">
-            {% if user.is_blogger %}
-                {% for info in infos %}
-                <li class="list-group-item">{{ info }}</li>
-                {% endfor %}
-            {% endif %}
-            </ul>
+    <ul class="list-group list-group-flush">
+        {% for info in infos %}
+            <li class="list-group-item">{{ info }}</li>
+        {% endfor %}
+    </ul>
 
     </div>
     </div>
+    {% endif %}
+    <div class="container">
   <nav aria-label="...">
   <ul class="pagination">
       <li class="page-item {% if not page_obj.has_previous %}disabled{% endif %}">
@@ -61,9 +62,11 @@
       {% endif %}
     </ul>
   </nav>
+    </div>
   <div class="modal fade" id="modal-board">
     <div class="modal-dialog">
       <div class="modal-content">
       </div>
     </div>
+
 {% endblock %}

@@ -9,6 +9,7 @@ from .forms import BloggerSignupForm, ReaderSignupForm
 from django.urls import reverse_lazy, reverse
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic import UpdateView, CreateView
+from django.contrib.auth import views as auth_views
 
 
 @receiver(post_save, sender=User)
@@ -32,7 +33,6 @@ class AbstractCertainUserCreateView(CreateView):
         login(self.request, user, backend='django.contrib.auth.backends.ModelBackend')
         return super().form_valid(form)
 
-    @check_recaptcha
     def post(self, request, *args, **kwargs):
         return super().post(request=self.request, *args, **kwargs)
 

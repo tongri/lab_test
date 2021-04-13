@@ -1,11 +1,21 @@
 from django import forms
-from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 
 from boards.models import Category, Blogger, User, Reader
 
 
 class MyDateInput(forms.DateInput):
     input_type = 'date'
+
+
+class LoginForm(AuthenticationForm):
+
+    def is_valid(self):
+        res = super().is_valid()
+        if not self.data.get('g-recaptcha-response'):
+            self.add_error(None, 'Please enter correct captcha')
+            return False
+        return res
 
 
 class SignUpForm(UserCreationForm):
@@ -18,6 +28,13 @@ class SignUpForm(UserCreationForm):
     class Meta(UserCreationForm.Meta):
         model = User
         fields = ('username', 'email', 'password1', 'password2', 'categories')
+
+    def is_valid(self):
+        res = super().is_valid()
+        if not self.data.get('g-recaptcha-response'):
+            self.add_error(None, 'Please enter correct captcha')
+            return False
+        return res
 
 
 class BloggerSignupForm(SignUpForm):

@@ -1,30 +1,34 @@
+from django.contrib import messages
 from django.shortcuts import render, get_object_or_404, redirect
 from django.core.cache import cache
-from .models import Board, Topic, Post
+from django.urls import reverse
+from .models import Board, Topic, Post, User
 from .forms import NewTopicForm, PostForm, BoardForm
 from django.contrib.auth.decorators import login_required
-
 from django.db.models import Count
-
 from django.utils import timezone
 from django.views.generic import UpdateView, ListView
 from django.contrib.auth.mixins import LoginRequiredMixin
-
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponseRedirect
 from django.template.loader import render_to_string
-from pdb import set_trace
 from django.core.paginator import Paginator
-from django.contrib import messages
+import xlwt
+import datetime
 
+from django.core.files.storage import FileSystemStorage
+from django.http import HttpResponse
 
-# Create your views here.
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer
+from reportlab.lib.styles import getSampleStyleSheet
+from reportlab.lib.units import inch
+
 
 
 class TopicListView(ListView):
     model = Topic
     context_object_name = 'topics'
     template_name = 'topics.html'
-    paginate_by = 1
+    #paginate_by = 1
 
     def get_context_data(self, **kwargs):
         kwargs['board'] = self.board
@@ -117,6 +121,7 @@ class BoardListView(ListView):
         infos = cache.get('notifications')
         return super().get_context_data(page=page, infos=infos, **kwargs)
 
+
 def add_to_cache(message):
     notification = cache.get('notifications')
     if notification:
@@ -141,7 +146,7 @@ def save_board_form(request, form, template_name, page, message):
                 'boards': boards,
                 'page': page,
                 'request': request,
-                'messages': (message, )
+                'messages': (message,)
             })
         else:
             data['form_is_valid'] = False
@@ -190,7 +195,7 @@ def board_delete(request, pk, page=1):
             'boards': boards,
             'request': request,
             'page': page,
-            'messages': (message, )
+            'messages': (message,)
         })
     else:
         context = {'board': board, 'page': page}
@@ -199,3 +204,75 @@ def board_delete(request, pk, page=1):
                                              request=request,
                                              )
     return JsonResponse(data)
+
+
+def export_topics_xls(request, pk):
+    try:
+        board = Board.objects.get(pk=pk)
+        rows = board.topics.values_list('subject', 'last_updated', 'starter', 'views')
+    except:
+        messages.error(request, 'no such board')
+        return HttpResponseRedirect(reverse('boards', {pk: pk}))
+    response = HttpResponse(content_type='application/ms-excel')
+    response['Content-Disposition'] = f'attachment; filename="topics_{board.name}.xls"'
+
+    wb = xlwt.Workbook(encoding='utf-8')
+    ws = wb.add_sheet('Topics')
+
+    row_num = 0
+
+    font_style = xlwt.XFStyle()
+    font_style.font.bold = True
+
+    columns = ['Subject', 'Last Updated', 'User', 'Views', ]
+
+    for col_num in range(len(columns)):
+        ws.write(row_num, col_num, columns[col_num], font_style)
+
+    font_style = xlwt.XFStyle()
+
+    for row in rows:
+        row_num += 1
+        row = list(row)
+        row[-2] = User.objects.get(id=row[-2]).username
+        for col_num in range(len(row)):
+            ws.write(row_num, col_num,
+                     row[col_num].utcnow().strftime("%m/%d/%Y, %H:%M:%S")
+                     if isinstance(row[col_num], datetime.datetime) else row[col_num],
+                     font_style)
+
+    wb.save(response)
+    return response
+
+def export_topics_pdf(request, pk):
+    cm = 2.54
+
+    try:
+        board = Board.objects.get(pk=pk)
+        rows = board.topics.values_list('subject', 'last_updated', 'starter', 'views')
+    except:
+        messages.error(request, 'no such board')
+        return HttpResponseRedirect(reverse('boards', {pk: pk}))
+
+    doc = SimpleDocTemplate(f"/tmp/{board.name}_topics.pdf")
+    styles = getSampleStyleSheet()
+    Story = [Spacer(1, 2)]
+    style = styles["Normal"]
+    p = Paragraph(f'{board.name.capitalize()} topics', style)
+    Story.append(p)
+    Story.append(Spacer(1, 0.15 * inch))
+    for i in rows:
+        bogustext = f'Name: {i[0]} Last_update: {i[1].utcnow().strftime("%m/%d/%Y, %H:%M:%S")} ' \
+                    f'User: {User.objects.get(id=i[2])} Views: {i[3]}'
+        p = Paragraph(bogustext, style)
+        Story.append(p)
+        Story.append(Spacer(1, 0.1 * inch))
+    doc.build(Story)
+
+    fs = FileSystemStorage("/tmp")
+    with fs.open(f"{board.name}_topics.pdf") as pdf:
+        response = HttpResponse(pdf, content_type='application/pdf')
+        response['Content-Disposition'] = f'attachment; filename="{board.name}_topics.pdf"'
+        return response
+
+    return response

@@ -3,9 +3,13 @@
 <li class="breadcrumb-item"><a href="{% url 'home' %}">Boards</a></li>
 <li class="breadcrumb-item active">{{ board.name }}</li>
 {% endblock %}{% block content %}
+    {% if user.is_blogger %}
 <div class="mb-4">
   <a href="{% url 'new_topic' board.pk %}" class="btn btn-primary">New topic</a>
+    <a href="{% url 'export_topics_xls' pk=board.pk %}" class="btn btn-primary">Export {{ board.name }} topics to xls</a>
+    <a target="_blank" href="{% url 'export_topics_pdf' pk=board.pk %}" class="btn btn-primary">Export {{ board.name }} topics to pdf</a>
 </div>
+    {% endif %}
 
 <table class="table">
   <thead class="thead-inverse">

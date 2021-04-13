@@ -1,8 +1,13 @@
 from django.contrib import admin
 from django.conf.urls import url
 from django.urls import path, include
+from django.utils.decorators import method_decorator
+
 from accounts import views as account_views
 from django.contrib.auth import views as auth_views
+
+from accounts.decorators import check_login_recaptcha
+from accounts.forms import LoginForm
 from boards import views
 from django.conf.urls.static import static
 from django.conf import settings 
@@ -13,7 +18,7 @@ urlpatterns = [
     path('signup/blogger/', account_views.BloggerCreateView.as_view(), name="signup_blogger"),
     path('signup/reader/', account_views.ReaderCreateView.as_view(), name="signup_reader"),
     url(r'^logout/$', auth_views.LogoutView.as_view(), name='logout'),
-    url(r'^login/$', auth_views.LoginView.as_view(template_name="login.html"), name="login"),
+    url(r'^login/$', auth_views.LoginView.as_view(template_name="login.html", form_class=LoginForm), name="login"),
     path('oauth/', include('social_django.urls', namespace='social')),
     path('board/create/<page>/', views.board_create, name='board_create'),
     path('board/<pk>/update/<page>/', views.board_update, name="board_update"),
@@ -39,4 +44,6 @@ urlpatterns = [
     path('settings/account/', account_views.UserUpdateView.as_view(), name='my_account'),
     path('admin/', admin.site.urls),
     path('pages/', include('django.contrib.flatpages.urls')),
+    path('export/xls/<pk>/', views.export_topics_xls, name='export_topics_xls'),
+    path('export/pdf/<pk>/', views.export_topics_pdf, name='export_topics_pdf'),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
