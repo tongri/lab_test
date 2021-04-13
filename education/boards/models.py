@@ -24,7 +24,7 @@ class User(AbstractUser):
 
 class Reader(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True, editable=False)
-    is_eighteen = models.BooleanField(default=False)
+    is_eighteen = models.BooleanField(default=False, blank=True)
 
     def __str__(self):
         return self.user.username

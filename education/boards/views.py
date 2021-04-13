@@ -244,6 +244,7 @@ def export_topics_xls(request, pk):
     wb.save(response)
     return response
 
+
 def export_topics_pdf(request, pk):
     cm = 2.54
 

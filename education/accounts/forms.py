@@ -23,11 +23,13 @@ class SignUpForm(UserCreationForm):
     categories = forms.ModelMultipleChoiceField(
         queryset=Category.objects.all(),
         widget=forms.CheckboxSelectMultiple,
+        required=False
     )
 
     class Meta(UserCreationForm.Meta):
         model = User
         fields = ('username', 'email', 'password1', 'password2', 'categories')
+        required = ('username', 'email', 'password1', 'password2')
 
     def is_valid(self):
         res = super().is_valid()
@@ -54,7 +56,7 @@ class BloggerSignupForm(SignUpForm):
 
 
 class ReaderSignupForm(SignUpForm):
-    is_eighteen = forms.BooleanField(required=True)
+    is_eighteen = forms.BooleanField(required=False)
 
     class Meta(SignUpForm.Meta):
         pass
