@@ -10,7 +10,9 @@
 
 {% for field in form %}
   <div class="form-group">
+  {% if field.widget_type != 'file' %}
     {{ field.label_tag }}
+  {% endif %}
     {{ field }}
     {% for error in field.errors %}
       <div class="invalid-feedback">

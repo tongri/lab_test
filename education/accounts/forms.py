@@ -1,6 +1,7 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
-
+from django.core.files import File
+from PIL import Image
 from boards.models import Category, Blogger, User, Reader
 
 
@@ -67,3 +68,29 @@ class ReaderSignupForm(SignUpForm):
         user.save()
         Reader.objects.create(user=user, is_eighteen=self.cleaned_data.get('is_eighteen'))
         return user
+
+
+class AccountForm(forms.ModelForm):
+    x = forms.FloatField(widget=forms.HiddenInput())
+    y = forms.FloatField(widget=forms.HiddenInput())
+    width = forms.FloatField(widget=forms.HiddenInput())
+    height = forms.FloatField(widget=forms.HiddenInput())
+
+    class Meta:
+        model = User
+        fields = ('first_name', 'last_name', 'email', 'avatar', 'x', 'y', 'width', 'height')
+
+    def save(self, commit=True):
+        photo = super().save()
+
+        x = self.cleaned_data.get('x')
+        y = self.cleaned_data.get('y')
+        w = self.cleaned_data.get('width')
+        h = self.cleaned_data.get('height')
+
+        image = Image.open(photo.file)
+        cropped_image = image.crop((x, y, w+x, h+y))
+        resized_image = cropped_image.resize((200, 200), Image.ANTIALIAS)
+        resized_image.save(photo.file.path)
+
+        return photo

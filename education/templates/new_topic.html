@@ -1,5 +1,9 @@
 
-{% extends 'base.html' %} {% load widget_tweaks %} {% load static %} {% block title %}Start a New
+{% extends 'base.html' %} {% load widget_tweaks %} {% load static %}
+{% block stylesheet %}
+    <link rel="stylesheet" href="{% static 'css/fileinput.css' %}">
+{% endblock %}
+{% block title %}Start a New
 Topic{% endblock %} {% block breadcrumb %}
 <li class="breadcrumb-item"><a href="{% url 'home' %}">Boards</a></li>
 <li class="breadcrumb-item">
@@ -7,29 +11,41 @@ Topic{% endblock %} {% block breadcrumb %}
 </li>
 <li class="breadcrumb-item active">New topic</li>
 {% endblock %} {% block content %}
-<form method="post" novalidate>
+<form method="post" novalidate enctype="multipart/form-data">
   {% csrf_token %} {% include "form.html" %}
-  <button type="submit" class="btn btn-success">Post</button>
-<button type="button" class="btn btn-primary js-upload-photos">
-  <span class="glyphicon glyphicon-cloud-upload"></span> Upload photos
-</button>
-
-{# 2. FILE INPUT TO BE USED BY THE PLUG-IN #}
-<input id="fileupload" type="file" name="file" multiple
-       style="display: none;"
-       data-url="{% url 'basic_upload' board.pk %}"
-       data-form-data='{"csrfmiddlewaretoken": "{{ csrf_token }}"}'>
-    {% block javascript %}
+<button type="submit" class="btn btn-success">Post</button>
 </form>
 
-    {# 1. BUTTON TO TRIGGER THE ACTION #}
+    <table id="my_photo"></table>
 
-  {# JQUERY FILE UPLOAD SCRIPTS #}
+
+    {% include 'photos.html' %}
+
+    {% block javascript %}
+        <script type="text/javascript">
+            function readURL(input) {
+                console.log('i am pressed');
+                let table = document.getElementById("gallery");
+                table.innerHTML = "";
+                for (let i = 0; i < input.files.length; i++) {
+                var newRow = table.insertRow(0);
+
+                // Insert a cell in the row at index 0
+                var newCell = newRow.insertCell(0);
+                var img = document.createElement("img");
+                img.classList.add("obj");
+                img.file = input.files[i];
+                newCell.appendChild(img);
+
+                // Append a text node to the cell
+                var newText = document.createTextNode(input.files[i].name);
+                newCell.appendChild(newText);
+            }
+            }
+</script>
   <script src="{% static 'js/jquery.ui.widget.js' %}"></script>
   <script src="{% static 'js/jquery.iframe-transport.js' %}"></script>
   <script src="{% static 'js/jquery.fileupload.js' %}"></script>
-
-  {# PHOTOS PAGE SCRIPTS #}
   <script src="{% static 'js/basic-upload.js' %}"></script>
 {% endblock %}
 {% endblock %}

@@ -54,8 +54,15 @@ def new_topic(request, pk):
             topic.board = board
             topic.starter = request.user
             topic.save()
-            post = Post.objects.create(message=form.cleaned_data.get('message'),
+            Post.objects.create(message=form.cleaned_data.get('message'),
                                        topic=topic, created_by=request.user)
+            photos = request.FILES.getlist('file_field')
+            if photos:
+                photos_form = PhotoForm(*photos)
+                if photos_form.is_valid():
+                    for photo_form in photos_form:
+                        photo_form.topic = topic
+                        photo_form.save()
             return redirect('topic_posts', pk=pk, topic_pk=topic.pk)
 
     else:
@@ -138,19 +145,11 @@ def add_to_cache(message):
 
 def photo_create(request, pk):
     data = dict()
+    board = Board.objects.get(pk=pk)
     if request.method == "POST":
-        form = PhotoForm(request.FILES)
-        if form.is_valid():
-            photos = form.save(commit=False)
-            data['html_book_list'] = render_to_string('photos.html', {
-                'request': request,
-            'photos': [form]
-        })
-        context = {'request': request}
+        photo = request.FILES.get('file')
+        data = {'is_valid': True, 'name': photo.file.name, 'url': photo.file.name}
         return JsonResponse(data)
-
-
-
 
 
 def save_board_form(request, form, template_name, page, message):
@@ -183,7 +182,7 @@ def board_create(request, page=1):
     else:
         form = BoardForm()
     return save_board_form(request, form, 'partial_board_create.html', page,
-                           message='Board "{}" was created successfully')
+                           message=f'Board "{form.data}" was created successfully')
 
 
 def board_update(request, pk, page=1):
@@ -194,7 +193,7 @@ def board_update(request, pk, page=1):
     else:
         form = BoardForm(instance=board)
     return save_board_form(request, form, 'partial_board_update.html', page,
-                           message='Board "{}" was updated successfully')
+                           message=f'Board "{form.data}" was updated successfully')
 
 
 def board_delete(request, pk, page=1):

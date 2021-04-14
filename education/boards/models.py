@@ -20,6 +20,7 @@ class User(AbstractUser):
     is_reader = models.BooleanField(default=False)
     is_blogger = models.BooleanField(default=False)
     categories = models.ManyToManyField(Category, blank=True, null=True)
+    avatar = models.ImageField(blank=True)
 
 
 class Reader(models.Model):
@@ -65,12 +66,12 @@ class Topic(models.Model):
 
 
 class Image(models.Model):
-    topic = models.ForeignKey(Topic, on_delete=models.CASCADE, blank=True)
-    title = models.CharField(max_length=300, default='photo_topic')
+    topic = models.ForeignKey(Topic, on_delete=models.CASCADE)
     image = models.ImageField(upload_to='images/')
 
     def __str__(self):
         return self.title
+
 
 class Post(models.Model):
     message = models.TextField(max_length=4000)

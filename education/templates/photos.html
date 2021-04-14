@@ -1,14 +1,9 @@
-<table id="gallery" class="table table-bordered">
+<table class="table table-bordered">
   <thead>
     <tr>
-      <th>Photo</th>
+      <th>Uploaded Photos</th>
     </tr>
   </thead>
-  <tbody>
-    {% for photo in photos %}
-      <tr>
-        <td><a href="{{ photo.file.url }}">{{ photo.file.name }}</a></td>
-      </tr>
-    {% endfor %}
+  <tbody id="gallery">
   </tbody>
 </table>

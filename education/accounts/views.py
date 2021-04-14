@@ -5,7 +5,7 @@ from django.shortcuts import render
 from django.contrib.auth import login
 from boards.models import User
 #from boards.tasks import send_email_reg
-from .forms import BloggerSignupForm, ReaderSignupForm
+from .forms import BloggerSignupForm, ReaderSignupForm, AccountForm
 from django.urls import reverse_lazy, reverse
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic import UpdateView, CreateView
@@ -52,7 +52,7 @@ class ReaderCreateView(AbstractCertainUserCreateView):
 
 class UserUpdateView(LoginRequiredMixin, UpdateView):
     model = User
-    fields = ('first_name', 'last_name', 'email', )
+    form_class = AccountForm
     template_name = 'my_account.html'
     success_url = reverse_lazy('home')
 
