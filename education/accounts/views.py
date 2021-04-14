@@ -9,10 +9,10 @@ from .forms import BloggerSignupForm, ReaderSignupForm
 from django.urls import reverse_lazy, reverse
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic import UpdateView, CreateView
-from django.core.mail import send_mail
+'''from django.core.mail import send_mail
 
 send_mail('Subject here', 'Here is the message.', 'from@example.com', ['antohagryb@gmail.com'], fail_silently=False)
-
+'''
 
 @receiver(post_save, sender=User)
 def specify_user_type(sender, instance=None, created=False, **kwargs):

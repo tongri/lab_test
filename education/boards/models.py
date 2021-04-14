@@ -64,6 +64,14 @@ class Topic(models.Model):
         return self.subject
 
 
+class Image(models.Model):
+    topic = models.ForeignKey(Topic, on_delete=models.CASCADE, blank=True)
+    title = models.CharField(max_length=300, default='photo_topic')
+    image = models.ImageField(upload_to='images/')
+
+    def __str__(self):
+        return self.title
+
 class Post(models.Model):
     message = models.TextField(max_length=4000)
     topic = models.ForeignKey(Topic, related_name='posts', related_query_name='posts', on_delete=models.CASCADE)

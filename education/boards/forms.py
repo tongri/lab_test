@@ -1,5 +1,5 @@
 from django import forms
-from .models import Topic, Post, Board
+from .models import Topic, Post, Board, Image
 
 
 class MyDateInput(forms.DateInput):
@@ -20,10 +20,17 @@ class NewTopicForm(forms.ModelForm):
         max_length=4000,
         help_text='Max length is 4000'
     )
+    file_field = forms.FileField(widget=forms.ClearableFileInput(attrs={'multiple': True}))
 
     class Meta:
         model = Topic
         fields = ('subject', 'message')
+
+
+class PhotoForm(forms.ModelForm):
+    class Meta:
+        model = Image
+        fields = ('image', 'title')
 
 
 class PostForm(forms.ModelForm):

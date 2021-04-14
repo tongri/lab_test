@@ -25,6 +25,7 @@ urlpatterns = [
     path('board/<pk>/delete/<page>/', views.board_delete, name="board_delete"),
     url(r'^boards/(?P<pk>\d+)/$', views.TopicListView.as_view(), name="board_topics"),
     url(r'^boards/(?P<pk>\d+)/new/$', views.new_topic, name="new_topic"),
+    path('upload/photos/<pk>/', views.photo_create, name='basic_upload'),
     path("boards/<pk>/topics/<topic_pk>/", views.PostListView.as_view(), name="topic_posts"),
     path("boards/<pk>/topics/<topic_pk>/reply/", views.reply_topic, name="reply_topic"),
     path("boards/<pk>/topics/<topic_pk>/posts/<post_pk>/edit/", views.PostUpdateView.as_view(), name="edit_post"),

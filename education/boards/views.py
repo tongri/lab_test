@@ -1,9 +1,12 @@
 from django.contrib import messages
+from django.forms import modelformset_factory
 from django.shortcuts import render, get_object_or_404, redirect
 from django.core.cache import cache
 from django.urls import reverse
-from .models import Board, Topic, Post, User
-from .forms import NewTopicForm, PostForm, BoardForm
+from django.views.generic.base import View
+
+from .models import Board, Topic, Post, User, Image
+from .forms import NewTopicForm, PostForm, BoardForm, PhotoForm
 from django.contrib.auth.decorators import login_required
 from django.db.models import Count
 from django.utils import timezone
@@ -66,6 +69,7 @@ class PostListView(ListView):
     template_name = 'topic_posts.html'
     paginate_by = 2
 
+
     def get_context_data(self, **kwargs):
         self.topic.views += 1
         self.topic.save()
@@ -76,6 +80,7 @@ class PostListView(ListView):
         self.topic = get_object_or_404(Topic, board__pk=self.kwargs.get('pk'), pk=self.kwargs.get('topic_pk'))
         queryset = self.topic.posts.order_by('created_at')
         return queryset
+
 
 
 @login_required
@@ -129,6 +134,23 @@ def add_to_cache(message):
         cache.set('notifications', notification, 60 * 15)
     else:
         cache.set('notifications', [message], 60 * 15)
+
+
+def photo_create(request, pk):
+    data = dict()
+    if request.method == "POST":
+        form = PhotoForm(request.FILES)
+        if form.is_valid():
+            photos = form.save(commit=False)
+            data['html_book_list'] = render_to_string('photos.html', {
+                'request': request,
+            'photos': [form]
+        })
+        context = {'request': request}
+        return JsonResponse(data)
+
+
+
 
 
 def save_board_form(request, form, template_name, page, message):
@@ -277,3 +299,4 @@ def export_topics_pdf(request, pk):
         return response
 
     return response
+
