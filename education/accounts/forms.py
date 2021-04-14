@@ -75,10 +75,12 @@ class AccountForm(forms.ModelForm):
     y = forms.FloatField(widget=forms.HiddenInput())
     width = forms.FloatField(widget=forms.HiddenInput())
     height = forms.FloatField(widget=forms.HiddenInput())
+    avatar = forms.FileField(widget=forms.FileInput(attrs={'id': 'fileUplaod'}))
 
     class Meta:
         model = User
         fields = ('first_name', 'last_name', 'email', 'avatar', 'x', 'y', 'width', 'height')
+
 
     def save(self, commit=True):
         photo = super().save()
