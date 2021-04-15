@@ -1,6 +1,5 @@
 from django import forms
-from .models import Topic, Post, Board, Image
-
+from .models import Topic, Post, Board, Image, User
 
 
 class MyDateInput(forms.DateInput):
@@ -10,7 +9,7 @@ class MyDateInput(forms.DateInput):
 class BoardForm(forms.ModelForm):
     class Meta:
         model = Board
-        fields = '__all__'
+        exclude = 'active',
 
 
 class NewTopicForm(forms.ModelForm):
@@ -28,15 +27,15 @@ class NewTopicForm(forms.ModelForm):
 
     class Meta:
         model = Topic
-        exclude = ('starter', 'board', 'views')
+        exclude = ('views', 'board', 'starter')
 
 
 class PhotoForm(forms.ModelForm):
-    image = forms.FileField(widget=forms.ClearableFileInput(attrs={'multiple': True}))
+    file_field = forms.FileField(widget=forms.ClearableFileInput(attrs={'multiple': True}))
 
     class Meta:
         model = Image
-        fields = ('image', 'topic')
+        fields = ('file_field', )
 
 
 class PostForm(forms.ModelForm):

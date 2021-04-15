@@ -75,7 +75,7 @@ class AccountForm(forms.ModelForm):
     y = forms.FloatField(widget=forms.HiddenInput())
     width = forms.FloatField(widget=forms.HiddenInput())
     height = forms.FloatField(widget=forms.HiddenInput())
-    avatar = forms.FileField(widget=forms.FileInput(attrs={'id': 'fileUplaod', 'onchange': 'outConsole(this);'}))
+    avatar = forms.FileField(widget=forms.FileInput(attrs={'id': 'fileUplaod', 'name': 'image', 'class': 'image'}))
 
     class Meta:
         model = User

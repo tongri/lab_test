@@ -26,12 +26,11 @@ from reportlab.lib.styles import getSampleStyleSheet
 from reportlab.lib.units import inch
 
 
-
 class TopicListView(ListView):
     model = Topic
     context_object_name = 'topics'
     template_name = 'topics.html'
-    #paginate_by = 1
+    paginate_by = 1
 
     def get_context_data(self, **kwargs):
         kwargs['board'] = self.board
@@ -43,26 +42,30 @@ class TopicListView(ListView):
         return queryset
 
 
+def image_crop(request):
+    x = 5
+    print(x)
+
+
 @login_required
 def new_topic(request, pk):
     board = get_object_or_404(Board, pk=pk)
-
     if request.method == "POST":
         form = NewTopicForm(request.POST)
         if form.is_valid():
             topic = form.save(commit=False)
-            topic.board = board
             topic.starter = request.user
+            topic.board = Board.objects.get(pk=pk)
             topic.save()
-            Post.objects.create(message=form.cleaned_data.get('message'),
-                                       topic=topic, created_by=request.user)
-            photos = request.FILES.getlist('file_field')
-            if photos:
-                photos_form = PhotoForm(*photos)
+            Post.objects.create(message=form.cleaned_data.get('message'), topic=topic, created_by=request.user)
+            files = request.FILES.getlist('file_field')
+            for file in files:
+                request.FILES['file_field'] = file
+                photos_form = PhotoForm(request.POST, request.FILES)
                 if photos_form.is_valid():
-                    for photo_form in photos_form:
-                        photo_form.topic = topic
-                        photo_form.save()
+                    photos_objects = photos_form.save(commit=False)
+                    photos_objects.topic = topic
+                    photos_objects.save()
             return redirect('topic_posts', pk=pk, topic_pk=topic.pk)
 
     else:
@@ -76,12 +79,14 @@ class PostListView(ListView):
     template_name = 'topic_posts.html'
     paginate_by = 2
 
-
     def get_context_data(self, **kwargs):
         self.topic.views += 1
         self.topic.save()
         kwargs['topic'] = self.topic
-        return super().get_context_data(**kwargs)
+        res = super().get_context_data(**kwargs)
+        photos = res.get('topic').photos
+        res.update({'photos': photos})
+        return res
 
     def get_queryset(self):
         self.topic = get_object_or_404(Topic, board__pk=self.kwargs.get('pk'), pk=self.kwargs.get('topic_pk'))
@@ -127,6 +132,7 @@ class BoardListView(ListView):
     context_object_name = "boards"
     template_name = "home.html"
     paginate_by = 2
+    queryset = Board.objects.filter(active=True)
 
     def get_context_data(self, **kwargs):
         page = self.request.GET.get('page', 1)

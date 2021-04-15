@@ -43,7 +43,8 @@ class Blogger(models.Model):
 class Board(models.Model):
     name = models.CharField(max_length=30, unique=True)
     description = models.CharField(max_length=100)
-    
+    active = models.BooleanField(default=True)
+
     def __str__(self):
         return self.name
 
@@ -66,11 +67,8 @@ class Topic(models.Model):
 
 
 class Image(models.Model):
-    topic = models.ForeignKey(Topic, on_delete=models.CASCADE)
-    image = models.ImageField(upload_to='images/')
-
-    def __str__(self):
-        return self.title
+    topic = models.ForeignKey(Topic, on_delete=models.CASCADE, related_name='photos', related_query_name='photos')
+    file_field = models.ImageField(upload_to='static/')
 
 
 class Post(models.Model):

@@ -15,7 +15,9 @@
   <div class="mb-4">
     <a href="{% url 'reply_topic' pk=topic.board.pk topic_pk=topic.pk%}" class="btn btn-primary" role="button">Reply</a>
   </div>
-
+    {% for photo in topic.photos.all %}
+        <img src="/{{photo.file_field}}" class="img-thumbnail" style="height: 200px;">
+    {% endfor %}
   {% for post in topic.posts.all %}
   <div class="card mb-2 {% if forloop.first %}border-dark{% endif %}">
     {% if forloop.first %}
@@ -25,7 +27,6 @@
       <div class="card-body p-3">
         <div class="row">
           <div class="col-2">
-            <img src="{% static 'img/avatar.svg' %}" alt="{{ post.created_by.username }}" class="w-100">
             <small>Posts: {{ post.created_by.posts.count }}</small>
           </div>
           <div class="col-10">

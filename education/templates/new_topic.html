@@ -13,7 +13,8 @@ Topic{% endblock %} {% block breadcrumb %}
 {% endblock %} {% block content %}
 <form method="post" novalidate enctype="multipart/form-data">
   {% csrf_token %} {% include "form.html" %}
-<button type="submit" class="btn btn-success">Post</button>
+    <button type="submit" class="btn btn-success">Post</button>
+
 </form>
 
     <table id="my_photo"></table>
