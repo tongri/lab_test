@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load static %}
 
 {% block title %}My account{% endblock %}
 
@@ -54,12 +55,11 @@
 {% endblock %}
 
 {% block javascript %}
-  <script>
+    <script src="{% static 'js/cropper.min.js' %}"></script>
+  <script type="text/javascript">
     $(function () {
 
-      /* SCRIPT TO OPEN THE MODAL WITH THE PREVIEW */
       $("#fileUpload").change(function () {
-        console.log(5);
         if (this.file) {
           var reader = new FileReader();
           reader.onload = function (e) {
@@ -90,15 +90,12 @@
         canvasData = $image.cropper("getCanvasData");
         $image.cropper("destroy");
       });
-
       $(".js-zoom-in").click(function () {
         $image.cropper("zoom", 0.1);
       });
-
       $(".js-zoom-out").click(function () {
         $image.cropper("zoom", -0.1);
       });
-
       /* SCRIPT TO COLLECT THE DATA AND POST TO THE SERVER */
       $(".js-crop-and-upload").click(function () {
         var cropData = $image.cropper("getData");
