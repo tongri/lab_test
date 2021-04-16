@@ -69,10 +69,19 @@ img {
       </ol>
       {% block content %} {% endblock %}
     </div>
+{% for message in messages %}
+    <h3>{{ message }}</h3>
+{% endfor %}
 <div class="container">
-<form method="post">
+<form method="post" enctype="multipart/form-data" action="">
     {% csrf_token %}
     {% include 'form.html' %}
+    <div id="post-preview">
+
+    </div>
+    <button type="submit" type="button" class="btn btn-success" style="margin-top: 20px;">
+        Update
+    </button>
 </form>
 
 <div class="modal fade" id="modal" tabindex="-1" role="dialog" aria-labelledby="modalLabel" aria-hidden="true">
@@ -161,16 +170,24 @@ $("#crop").click(function(){
          reader.readAsDataURL(blob);
          reader.onloadend = function() {
             var base64data = reader.result;
-
-            $.ajax({
-                dataType: "json",
-                url: "/image-cropper/upload",
-                data: {'image': base64data},
-                success: function(data){
-                    $modal.modal('hide');
-                    alert("success upload image");
-                }
-              });
+            let attrs = $(".cropper-crop-box")[0];
+            let {width, height, transform} = attrs.style;
+            document.getElementById("id_width").value = width;
+            document.getElementById("id_height").value = height;
+            document.getElementById("id_transform").value = transform;
+            let resized = $(".cropper-container")[0];
+            let {width: width_resized, height: height_resized} = resized.style;
+            document.getElementById("id_resized_width").value = width_resized;
+            document.getElementById("id_resized_height").value = height_resized;
+            let preview = document.getElementsByClassName("preview")[0].firstChild;
+            let postPreview = document.getElementById("post-preview");
+            let div = document.createElement("div");
+            div.style.width = "160px";
+            div.style.height = "160px";
+            div.style.overflow = "hidden";
+            postPreview.appendChild(div);
+            div.appendChild(preview);
+            $modal.modal('hide');
          }
     });
 })

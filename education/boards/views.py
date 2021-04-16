@@ -42,11 +42,6 @@ class TopicListView(ListView):
         return queryset
 
 
-def image_crop(request):
-    x = 5
-    print(x)
-
-
 @login_required
 def new_topic(request, pk):
     board = get_object_or_404(Board, pk=pk)

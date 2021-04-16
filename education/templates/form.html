@@ -10,7 +10,7 @@
 
 {% for field in form %}
   <div class="form-group">
-  {% if field.widget_type != 'file' %}
+  {% if field.widget_type != 'file' and field.widget_type != 'hidden' %}
     {{ field.label_tag }}
   {% endif %}
     {{ field }}
