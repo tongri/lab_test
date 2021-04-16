@@ -59,7 +59,7 @@ class BloggerSignupForm(SignUpForm):
 
 
 class ReaderSignupForm(SignUpForm):
-    is_eighteen = forms.BooleanField(required=False)
+    is_eighteen = forms.BooleanField(required=False, label='Are you 18 y.o.?')
 
     class Meta(SignUpForm.Meta):
         pass
@@ -73,11 +73,11 @@ class ReaderSignupForm(SignUpForm):
 
 
 class AccountForm(forms.ModelForm):
-    transform = forms.CharField(widget=forms.HiddenInput(), required=False)
-    width = forms.CharField(widget=forms.HiddenInput(), required=False)
-    height = forms.CharField(widget=forms.HiddenInput(), required=False)
-    resized_width = forms.CharField(widget=forms.HiddenInput(), required=False)
-    resized_height = forms.CharField(widget=forms.HiddenInput(), required=False)
+    transform = forms.CharField(widget=forms.HiddenInput(attrs={"id": "id_transform"}), required=False)
+    width = forms.CharField(widget=forms.HiddenInput(attrs={"id": "id_width"}), required=False)
+    height = forms.CharField(widget=forms.HiddenInput(attrs={"id": "id_height"}), required=False)
+    resized_width = forms.CharField(widget=forms.HiddenInput(attrs={"id": "id_resized_width"}), required=False)
+    resized_height = forms.CharField(widget=forms.HiddenInput(attrs={"id": "id_resized_height"}), required=False)
     avatar = forms.ImageField(widget=forms.FileInput(attrs={'id': 'fileUplaod', 'name': 'image', 'class': 'image'}))
 
     class Meta:

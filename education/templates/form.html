@@ -9,20 +9,38 @@
 {% endif %}
 
 {% for field in form %}
-  <div class="form-group">
-  {% if field.widget_type != 'file' and field.widget_type != 'hidden' %}
-    {{ field.label_tag }}
+  <div class="input-group {% if field.widget_type != "hidden" %}mb-3{% endif %}">
+  {% if field.widget_type == 'checkboxselectmultiple' %}
+      <h5 class="pr-3">{{ field.label }}</h5>
+      <div class="form-check">
+
+      {% for subwidget in field.subwidgets %}
+        <input class="form-check-input" type="checkbox" name="{{ subwidget.id_for_label }}" id="flexCheckDefault">
+          <label class="form-check-label" for="flexCheckDefault">
+              {{ subwidget.choice_label }}
+        </label>
+          <br>
+      {% endfor %}
+      </div>
+      {% elif field.widget_type == "checkbox" %}
+
+            <div class="form-check">
+                <input class="form-check-input" name="{{ field.name }}" type="checkbox" value="" id="flexCheckDefault">
+                <label class="form-check-label" for="flexCheckDefault">
+                    {{ field.label }}
+                </label>
+            </div>
+      {% elif field.widget_type == "file" %}
+      {{ field }}
+      {% else %}
+    <input type="{{ field.widget_type }}" class="form-control {% if field.errors %}is-invalid{% endif %}" name="{{ field.name }}" placeholder="{{ field.label }}"
+           aria-label="{{ field.label }}" id="{{ field.id_for_label }}">
   {% endif %}
-    {{ field }}
+
     {% for error in field.errors %}
       <div class="invalid-feedback">
         {{ error }}
       </div>
     {% endfor %}
-    {% if field.help_text %}
-      <small class="form-text text-muted">
-        {{ field.help_text|safe }}
-      </small>
-    {% endif %}
   </div>
 {% endfor %}

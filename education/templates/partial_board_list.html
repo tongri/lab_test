@@ -1,3 +1,4 @@
+<div class="col">
 {% if messages %}
   <ul class="messages">
     {% for message in messages %}
@@ -55,3 +56,31 @@
       {% endfor %}
   </tbody>
 </table>
+</div>
+
+{% if user.is_blogger and infos %}
+    <div class="col-4">
+        <div class="card">
+
+
+
+    <ul class="list-group list-group-flush">
+        {% for info in infos %}
+
+
+                <li class="list-group-item" id="{{ info.actions.num.1 }}">{{ info.board.name }} was
+                {% if info.action == 1 %}
+                    created
+                    {% elif info.action == 2 %}
+                    updated
+                    {% else %}
+                    deleted
+                {% endif %}
+                </li>
+
+        {% endfor %}
+    </ul>
+
+    </div>
+    </div>
+    {% endif %}

@@ -9,9 +9,11 @@
           {% csrf_token %} {% include 'form.html' %}
             <script src='https://www.google.com/recaptcha/api.js'></script>
             <div class="g-recaptcha" data-sitekey="6LeD3qYaAAAAAOYDwQIiqaBs12etbmS4-r4QIMvS"></div>
-          <button type="submit" class="btn btn-primary btn-block">
+            <div class="row justify-content-center">
+          <button type="submit" class="btn btn-primary btn-block w-50 mt-2">
             Log in
           </button>
+                </div>
         </form>
       </div>
       <div class="card-footer text-muted text-center">
@@ -20,7 +22,7 @@
     </div>
     <div class="text-center py-2">
       <small>
-        <a href="#" class="text-muted">Forgot your password?</a>
+        <a href="{% url 'password_reset' %}" class="text-muted">Forgot your password?</a>
       </small>
         <p><strong>-- OR --</strong></p>
             <a href="{% url 'social:begin' 'github' %}">Login with GitHub</a>

@@ -12,6 +12,7 @@ class BoardForm(forms.ModelForm):
         exclude = 'active',
 
 
+
 class NewTopicForm(forms.ModelForm):
     message = forms.CharField(
         widget=forms.Textarea(

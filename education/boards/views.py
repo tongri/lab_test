@@ -1,11 +1,10 @@
 from django.contrib import messages
-from django.forms import modelformset_factory
+from django.db.models.signals import post_save, pre_save
+from django.dispatch import receiver
 from django.shortcuts import render, get_object_or_404, redirect
 from django.core.cache import cache
 from django.urls import reverse
-from django.views.generic.base import View
-
-from .models import Board, Topic, Post, User, Image
+from .models import Board, Topic, Post, User, BoardAction
 from .forms import NewTopicForm, PostForm, BoardForm, PhotoForm
 from django.contrib.auth.decorators import login_required
 from django.db.models import Count
@@ -14,16 +13,27 @@ from django.views.generic import UpdateView, ListView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import JsonResponse, HttpResponseRedirect
 from django.template.loader import render_to_string
-from django.core.paginator import Paginator
+from django.core.paginator import Paginator, EmptyPage
 import xlwt
 import datetime
-
 from django.core.files.storage import FileSystemStorage
 from django.http import HttpResponse
-
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer
 from reportlab.lib.styles import getSampleStyleSheet
 from reportlab.lib.units import inch
+
+
+@receiver(post_save, sender=Board)
+def creation_note(sender, instance=None, created=False, **kwargs):
+    if created:
+        BoardAction.objects.create(board=instance, action=1)
+    elif kwargs['update_fields']:
+        print(5)
+
+
+@receiver(pre_save, sender=Board)
+def updating_note(sender, instance=None, created=False, **kwargs):
+    x = 5
 
 
 class TopicListView(ListView):
@@ -126,12 +136,13 @@ class BoardListView(ListView):
     model = Board
     context_object_name = "boards"
     template_name = "home.html"
-    paginate_by = 2
+    paginate_by = 5
     queryset = Board.objects.filter(active=True)
+    allow_empty = True
 
     def get_context_data(self, **kwargs):
         page = self.request.GET.get('page', 1)
-        infos = cache.get('notifications')
+        infos = BoardAction.objects.all()[:5]
         return super().get_context_data(page=page, infos=infos, **kwargs)
 
 
@@ -162,13 +173,14 @@ def save_board_form(request, form, template_name, page, message):
             p = Paginator(Board.objects.all(), BoardListView.paginate_by)
             boards = p.page(page)
             boards = boards.object_list
-            add_to_cache(message.format(form.cleaned_data.get('name')))
 
+            infos = BoardAction.objects.all()[:5]
             data['html_book_list'] = render_to_string('partial_board_list.html', {
                 'boards': boards,
                 'page': page,
                 'request': request,
-                'messages': (message,)
+                'messages': (message,),
+                'infos': infos
             })
         else:
             data['form_is_valid'] = False
@@ -182,8 +194,9 @@ def board_create(request, page=1):
         form = BoardForm(request.POST)
     else:
         form = BoardForm()
+    name = form.data.get('name')
     return save_board_form(request, form, 'partial_board_create.html', page,
-                           message=f'Board "{form.data}" was created successfully')
+                           message=f'Board "{name}" was created successfully')
 
 
 def board_update(request, pk, page=1):
@@ -193,8 +206,9 @@ def board_update(request, pk, page=1):
         form = BoardForm(request.POST, instance=board)
     else:
         form = BoardForm(instance=board)
+    name = form.data.get('name')
     return save_board_form(request, form, 'partial_board_update.html', page,
-                           message=f'Board "{form.data}" was updated successfully')
+                           message=f'Board "{name}" was updated successfully')
 
 
 def board_delete(request, pk, page=1):
@@ -203,16 +217,18 @@ def board_delete(request, pk, page=1):
     data = dict()
     if request.method == 'POST':
         data['form_is_valid'] = True
+        board.active = False
+        board.save()
+        p = Paginator(Board.objects.filter(active=True), BoardListView.paginate_by)
 
-        p = Paginator(Board.objects.all(), BoardListView.paginate_by)
+        try:
+            boards = p.page(page)
+            boards = boards.object_list
+        except EmptyPage:
+            boards = Board.objects.none()
 
-        boards = p.page(page)
-        boards = boards.object_list
 
-        message = 'Board "{}" was deleted successfully!'.format(board.name)
-
-        add_to_cache(message)
-        board.delete()
+        message = f'Board "{board.name}" was deleted successfully!'.format(board.name)
         data['html_book_list'] = render_to_string('partial_board_list.html', {
             'boards': boards,
             'request': request,

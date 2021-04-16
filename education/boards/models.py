@@ -85,3 +85,13 @@ class Post(models.Model):
 
     def get_message_as_markdown(self):
         return mark_safe(markdown(self.message))
+
+
+class BoardAction(models.Model):
+    actions = (
+        (1, 'created'),
+        (2, 'updated'),
+        (3, 'deleted')
+    )
+    board = models.ForeignKey(Board, on_delete=models.CASCADE)
+    action = models.IntegerField(choices=actions)

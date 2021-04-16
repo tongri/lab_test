@@ -66,6 +66,9 @@ img {
     <div class="container">
       <ol class="breadcrumb my-4">
         {% block breadcrumb %} {% endblock %}
+      <li class="breadcrumb-item active">Account
+      </li>
+
       </ol>
       {% block content %} {% endblock %}
     </div>
@@ -168,13 +171,16 @@ $("#crop").click(function(){
         url = URL.createObjectURL(blob);
         var reader = new FileReader();
          reader.readAsDataURL(blob);
+
          reader.onloadend = function() {
             var base64data = reader.result;
             let attrs = $(".cropper-crop-box")[0];
             let {width, height, transform} = attrs.style;
+            console.log(document.getElementById("id_width"));
             document.getElementById("id_width").value = width;
             document.getElementById("id_height").value = height;
             document.getElementById("id_transform").value = transform;
+             console.log(attrs);
             let resized = $(".cropper-container")[0];
             let {width: width_resized, height: height_resized} = resized.style;
             document.getElementById("id_resized_width").value = width_resized;
